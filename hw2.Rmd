@@ -1,0 +1,77 @@
+---
+title: 'Homework #3'
+author: "Braedon Giblin"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(classdata)
+library(ggplot2)
+data(ames)
+```
+
+
+
+1.  Explore and explain what is the relationship between the sale price (y) and living area size (x). In your visualization, add a straight line with intercept at 20000 and slope equal to 100. Look at `?geom_abline`, and in particular the examples. Remark on any patterns you find and the straight line.
+
+    Answer:
+    ```{R}
+    ggplot(ames, aes(x=GrLivArea, y=SalePrice)) + geom_point() + geom_abline(slope = 100, intercept = 20000, color = 'darkred', size = 3)
+    ```
+    
+    As living space increases, so does price (i.e. the two variables have a postive correlation). The line represents a sort of regression model (trendline).
+    
+  
+2.  Describe at least two types of anomalies in the previous plot. What do they mean?
+    
+    Answer:
+    1.  There are two outliers far to the right (aproximtely 4800 - 5800 sqft of Living Area) witha realtively low cost. Without knowing the details of the house it's unclear why the costs are so low given the living space. Likely, it means their is something else wrong with the house (eg. run down, far away, etc.)
+    1.  The 'spread' of the variables increases the further along the x axis the data is. This is likley because when the residence is below a certain size (~1500 sqft) then the price point becomes rather fixed as most of these are likely apartments and therefore priced comptetively. As the x-axis increases however, there is more variance in quality and location and therefore living area becomes less of a dominator in the price calculation.
+    
+3.  Visualize the number of sales for each type of building in a barchart. Make sure the building types are ordered from the most to the least common. What do you find?
+
+    Answer:
+    ```{R}
+    ames$BldgType <- factor(ames$BldgType, levels = c('1Fam', 'TwnhsE', 'Duplex', 'Twnhs', '2fmCon'))
+    ggplot(data=ames, aes(x=BldgType)) + geom_bar()
+    ```
+    
+    Single family homes are by far the most popular, followed by end unit townhouses
+    
+    
+4.  Introduce a variable `houseAge` into the data set which stands for the age of the house at the time when it was sold. How does the age of the house affect the sale price?
+
+    Answer:
+    ```{R}
+    ames$houseAge = ames$YrSold - ames$YearBuilt
+    ggplot(ames, aes(x=houseAge, y=SalePrice)) + geom_point()
+    ```
+    The house age appears to have only a subtle effect on the cost. Older houses tend to sell for slightly less than newer houses.
+    
+    
+5.  Were there more sales of older houses or newer houses?
+
+    ```{R}
+    ggplot(ames, aes(x=houseAge)) + geom_histogram() + ggtitle('Houses sold per age')
+    ```
+    Most houses sold are newer houses.
+    
+6.  How do the neighborhood and the slope of property affect the relationship between sale price and year built? Focus on the neighborhoods of Brookside, Clear Creek, College Creek, and Somerset only. Find a visualization that incorporates all four variables. Interpret the result.
+
+
+    Answer:
+    ```{R}
+    smallAmes <- ames[which(ames$Neighborhood == 'BrkSide' | ames$Neighborhood == 'ClearCr' | ames$Neighborhood == 'CollgCr' | ames$Neighborhood == 'Somerst'),]
+    ggplot(smallAmes, aes(x=YearBuilt, y=SalePrice)) + geom_point() + facet_grid(Neighborhood ~ LandSlope)
+    ```
+    There apears to be no real relation between neighborbood and slope and Sales price. Newer houses seem to be built more commonly on gentler slopes.
+    
+7.  Create a side-by-side histogram showing the overall conditions for the different types of buildings. Comment on the result.
+
+    Answer:
+    
+    ```{R}
+    ggplot(ames, aes(x=OverallCond, fill=BldgType)) + geom_histogram(position='dodge')
+    ```
+    Most properties are mediocre (5) in terms of quality. This seems to be fairly consistent regardless of property type.
